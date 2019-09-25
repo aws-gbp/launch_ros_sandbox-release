@@ -1,0 +1,12 @@
+Source: ros-dashing-launch-ros-sandbox
+Section: misc
+Priority: extra
+Maintainer: AWS RoboMaker <ros-contributions@amazon.com>
+Build-Depends: debhelper (>= 9.0.0), python3-docker, python3-pytest, ros-dashing-ament-copyright, ros-dashing-ament-flake8, ros-dashing-ament-pep257, ros-dashing-launch, ros-dashing-launch-ros, ros-dashing-ros-workspace, python3-all, python3-setuptools
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-dashing-launch-ros-sandbox
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, python3-docker, ros-dashing-launch, ros-dashing-launch-ros, ros-dashing-ros-workspace
+Description: Extension to launch_ros to provide the ability to run nodes in sandboxed environments.
