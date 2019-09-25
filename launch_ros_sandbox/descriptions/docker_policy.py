@@ -19,7 +19,10 @@ Using DockerPolicy, users can load one or more nodes into a particular Docker co
 DockerPolicy requires that Docker 18+ and docker-py 4.0+ is installed.
 
 Example:
--------
+--------
+
+.. code-block:: python
+
     ld = launch.LaunchDescription()
 
     ld.add_action(
@@ -48,6 +51,8 @@ parameters to docker-py.
 """
 
 import time
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -83,6 +88,7 @@ class DockerPolicy(Policy):
         tag: Optional[str] = None,
         entrypoint: Optional[str] = None,
         container_name: Optional[str] = None,
+        run_args: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Construct the DockerPolicy.
@@ -104,6 +110,12 @@ class DockerPolicy(Policy):
         identify when listing all the containers. Defaults to
         ros2launch-sandboxed-node-<Hour><Minute><Sec> where the time is when the DockerPolicy
         was constructed.
+        :param: run_args is a dictionary of arguments (str to Any) passed into the 'run' command
+        for the Docker container. See [1] for supported arguments.
+        'image', 'tty', 'detach', 'auto_remove', and 'name' are not valid keywords for 'run_args'
+        due to being defined by LoadDockerNodes.
+
+         [1]: https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run # noqa
         """
         self.__logger = launch.logging.get_logger(__name__)
 
@@ -122,6 +134,7 @@ class DockerPolicy(Policy):
 
         self._image_name = '{}:{}'.format(self._repository, self._tag)
         self._container_name = container_name or _generate_container_name()
+        self._run_args = run_args
 
     @property
     def entrypoint(self) -> str:
@@ -151,6 +164,11 @@ class DockerPolicy(Policy):
         The image name is defined as 'repository:tag'.
         """
         return '{}:{}'.format(self.repository, self.tag)
+
+    @property
+    def run_args(self) -> Optional[Dict[str, Any]]:
+        """Return the dictionary of Docker container run arguments."""
+        return self._run_args
 
     def apply(
         self,

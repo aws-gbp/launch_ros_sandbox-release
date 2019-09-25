@@ -97,18 +97,25 @@ class LoadDockerNodes(Action):
         # This method may throw an ImageNotFound exception. Let the exception propogate upwards
         # since further operations should not continue
         self._docker_client.images.pull(
-            repository=self._policy.repository,
+            self._policy.repository,
             tag=self._policy.tag
         )
 
     def _start_docker_container(self) -> None:
-        """Start Docker container."""
+        """
+        Start Docker container.
+
+        Run arguments will be forwarded to the containers run command if they exist.
+        """
+        tmp_run_args = self._policy.run_args or {}
+
         self._container = self._docker_client.containers.run(
-            image=self._policy.image_name,
+            self._policy.image_name,
             detach=True,
             auto_remove=True,
             tty=True,
-            name=self._policy.container_name
+            name=self._policy.container_name,
+            **tmp_run_args
         )
 
         self.__logger.debug('Running Docker container: \"{}\"'.format(self._policy.container_name))
@@ -153,7 +160,8 @@ class LoadDockerNodes(Action):
         self,
         context: LaunchContext
     ) -> None:
-        """Start the Docker container and load all nodes into it.
+        """
+        Start the Docker container and load all nodes into it.
 
         This will first attempt to pull the docker image, start the docker container, and then load
         all of the nodes.
@@ -198,7 +206,8 @@ class LoadDockerNodes(Action):
         event: Event,
         context: LaunchContext
     ) -> Optional[SomeActionsType]:
-        """Run when the shutdown signal has been received.
+        """
+        Run when the shutdown signal has been received.
 
         This will cancel the started task, if running, call cancel
         on the completed future, and stop the container.
